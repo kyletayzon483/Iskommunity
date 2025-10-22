@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MessageCircle, ShoppingBag, Home, User, Send, Heart, MessageSquare, Search, Plus, X, Bot, Menu, Bell } from 'lucide-react';
+import { MessageCircle, ShoppingBag, Home, User, Send, Heart, MessageSquare, Search, Plus, X, Bot, Bell } from 'lucide-react';
 
 const COLORS = {
   primary: '#8B0000',
@@ -18,6 +18,7 @@ const App = () => {
   const [showChatbot, setShowChatbot] = useState(false);
   const [showListingModal, setShowListingModal] = useState(false);
   const [showMessages, setShowMessages] = useState(false);
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth <= 768 : true);
   const [posts, setPosts] = useState([
     {
       id: 1,
@@ -82,6 +83,12 @@ const App = () => {
   const [newPost, setNewPost] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const [conversations, setConversations] = useState([
     {
       id: 1,
@@ -393,7 +400,7 @@ const App = () => {
         <div style={{ 
           maxWidth: '1200px', 
           margin: '0 auto',
-          display: 'flex',
+        display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between'
         }}>
@@ -407,7 +414,7 @@ const App = () => {
           
           <div style={{ 
             flex: 1, 
-            maxWidth: '400px', 
+          maxWidth: isMobile ? '400px' : '600px', 
             margin: '0 24px',
             display: activeTab === 'home' || activeTab === 'marketplace' ? 'block' : 'none'
           }}>
@@ -438,6 +445,61 @@ const App = () => {
               />
             </div>
           </div>
+
+        {/* Desktop Nav (hidden on mobile) */}
+        <div style={{ display: isMobile ? 'none' : 'flex', gap: '8px', marginRight: '16px' }}>
+          <button
+            onClick={() => setActiveTab('home')}
+            style={{
+              background: activeTab === 'home' ? 'rgba(255,255,255,0.2)' : 'transparent',
+              border: 'none',
+              borderRadius: '20px',
+              padding: '8px 12px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              cursor: 'pointer',
+              color: COLORS.white
+            }}
+          >
+            <Home size={18} />
+            <span style={{ fontSize: '14px', fontWeight: activeTab === 'home' ? '600' : '500' }}>Feed</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('marketplace')}
+            style={{
+              background: activeTab === 'marketplace' ? 'rgba(255,255,255,0.2)' : 'transparent',
+              border: 'none',
+              borderRadius: '20px',
+              padding: '8px 12px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              cursor: 'pointer',
+              color: COLORS.white
+            }}
+          >
+            <ShoppingBag size={18} />
+            <span style={{ fontSize: '14px', fontWeight: activeTab === 'marketplace' ? '600' : '500' }}>Marketplace</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('messages')}
+            style={{
+              background: activeTab === 'messages' ? 'rgba(255,255,255,0.2)' : 'transparent',
+              border: 'none',
+              borderRadius: '20px',
+              padding: '8px 12px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              cursor: 'pointer',
+              color: COLORS.white
+            }}
+          >
+            <MessageCircle size={18} />
+            <span style={{ fontSize: '14px', fontWeight: activeTab === 'messages' ? '600' : '500' }}>Messages</span>
+          </button>
+        </div>
 
           <div style={{ display: 'flex', gap: '12px' }}>
             <button style={{
@@ -473,11 +535,15 @@ const App = () => {
       </div>
 
       {/* Main Content */}
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px' }}>
-        {activeTab === 'home' && renderHome()}
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px', paddingBottom: isMobile ? '96px' : '24px' }}>
+        {activeTab === 'home' && (
+          <div style={{ maxWidth: isMobile ? '100%' : '760px', margin: '0 auto' }}>
+            {renderHome()}
+          </div>
+        )}
         {activeTab === 'marketplace' && renderMarketplace()}
         {activeTab === 'messages' && (
-          <div>
+          <div style={{ maxWidth: isMobile ? '100%' : '760px', margin: '0 auto' }}>
             <div style={{ 
               background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.secondary} 100%)`,
               padding: '24px',
@@ -573,118 +639,120 @@ const App = () => {
       </div>
 
       {/* Bottom Navigation */}
-      <div style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        background: COLORS.white,
-        borderTop: `1px solid ${COLORS.border}`,
-        padding: '12px 0',
-        boxShadow: '0 -2px 8px rgba(0,0,0,0.1)'
-      }}>
+      {isMobile && (
         <div style={{
-          maxWidth: '600px',
-          margin: '0 auto',
-          display: 'flex',
-          justifyContent: 'space-around',
-          alignItems: 'center'
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          background: COLORS.white,
+          borderTop: `1px solid ${COLORS.border}`,
+          padding: '12px 0',
+          boxShadow: '0 -2px 8px rgba(0,0,0,0.1)'
         }}>
-          <button
-            onClick={() => setActiveTab('home')}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '4px',
-              color: activeTab === 'home' ? COLORS.primary : COLORS.darkGray,
-              padding: '8px 16px'
-            }}
-          >
-            <Home size={24} />
-            <span style={{ fontSize: '12px', fontWeight: activeTab === 'home' ? '600' : '400' }}>Feed</span>
-          </button>
-          
-          <button
-            onClick={() => setActiveTab('marketplace')}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '4px',
-              color: activeTab === 'marketplace' ? COLORS.primary : COLORS.darkGray,
-              padding: '8px 16px'
-            }}
-          >
-            <ShoppingBag size={24} />
-            <span style={{ fontSize: '12px', fontWeight: activeTab === 'marketplace' ? '600' : '400' }}>Marketplace</span>
-          </button>
-          
-          <button
-            onClick={() => setActiveTab('messages')}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '4px',
-              color: activeTab === 'messages' ? COLORS.primary : COLORS.darkGray,
-              padding: '8px 16px',
-              position: 'relative'
-            }}
-          >
-            <MessageCircle size={24} />
-            <span style={{ fontSize: '12px', fontWeight: activeTab === 'messages' ? '600' : '400' }}>Messages</span>
-            {conversations.filter(c => c.unread > 0).length > 0 && (
-              <div style={{
-                position: 'absolute',
-                top: '4px',
-                right: '12px',
-                background: COLORS.primary,
-                color: COLORS.white,
+          <div style={{
+            maxWidth: '600px',
+            margin: '0 auto',
+            display: 'flex',
+            justifyContent: 'space-around',
+            alignItems: 'center'
+          }}>
+            <button
+              onClick={() => setActiveTab('home')}
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '4px',
+                color: activeTab === 'home' ? COLORS.primary : COLORS.darkGray,
+                padding: '8px 16px'
+              }}
+            >
+              <Home size={24} />
+              <span style={{ fontSize: '12px', fontWeight: activeTab === 'home' ? '600' : '400' }}>Feed</span>
+            </button>
+            
+            <button
+              onClick={() => setActiveTab('marketplace')}
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '4px',
+                color: activeTab === 'marketplace' ? COLORS.primary : COLORS.darkGray,
+                padding: '8px 16px'
+              }}
+            >
+              <ShoppingBag size={24} />
+              <span style={{ fontSize: '12px', fontWeight: activeTab === 'marketplace' ? '600' : '400' }}>Marketplace</span>
+            </button>
+            
+            <button
+              onClick={() => setActiveTab('messages')}
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '4px',
+                color: activeTab === 'messages' ? COLORS.primary : COLORS.darkGray,
+                padding: '8px 16px',
+                position: 'relative'
+              }}
+            >
+              <MessageCircle size={24} />
+              <span style={{ fontSize: '12px', fontWeight: activeTab === 'messages' ? '600' : '400' }}>Messages</span>
+              {conversations.filter(c => c.unread > 0).length > 0 && (
+                <div style={{
+                  position: 'absolute',
+                  top: '4px',
+                  right: '12px',
+                  background: COLORS.primary,
+                  color: COLORS.white,
+                  borderRadius: '50%',
+                  width: '18px',
+                  height: '18px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '10px',
+                  fontWeight: 'bold'
+                }}>
+                  {conversations.reduce((sum, c) => sum + c.unread, 0)}
+                </div>
+              )}
+            </button>
+            
+            <button
+              onClick={() => setShowChatbot(true)}
+              style={{
+                background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.secondary})`,
+                border: 'none',
+                cursor: 'pointer',
+                width: '56px',
+                height: '56px',
                 borderRadius: '50%',
-                width: '18px',
-                height: '18px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '10px',
-                fontWeight: 'bold'
-              }}>
-                {conversations.reduce((sum, c) => sum + c.unread, 0)}
-              </div>
-            )}
-          </button>
-          
-          <button
-            onClick={() => setShowChatbot(true)}
-            style={{
-              background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.secondary})`,
-              border: 'none',
-              cursor: 'pointer',
-              width: '56px',
-              height: '56px',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: COLORS.white,
-              boxShadow: '0 4px 12px rgba(139,0,0,0.3)',
-              transform: 'translateY(-8px)'
-            }}
-          >
-            <Bot size={28} />
-          </button>
+                color: COLORS.white,
+                boxShadow: '0 4px 12px rgba(139,0,0,0.3)',
+                transform: 'translateY(-8px)'
+              }}
+            >
+              <Bot size={28} />
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Post Modal */}
       {showPostModal && (
